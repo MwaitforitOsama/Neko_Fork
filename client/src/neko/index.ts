@@ -104,6 +104,9 @@ export class NekoClient extends BaseClient implements EventEmitter<NekoEvents> {
       duration: 5000,
       speed: 1000,
     })
+
+    // Automatically request control after connecting
+    this.sendMessage(EVENT.CONTROL.REQUEST)
   }
 
   protected [EVENT.DISCONNECTED](reason?: Error) {
