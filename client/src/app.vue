@@ -5,9 +5,9 @@
     </template>
     <template v-else>
       <main class="neko-main">
-        <div v-if="!videoOnly" class="header-container">
+        <!-- <div v-if="!videoOnly" class="header-container">
           <neko-header />
-        </div>
+        </div> -->
         <div class="video-container">
           <neko-video
             ref="video"
@@ -16,20 +16,20 @@
             @control-attempt="controlAttempt"
           />
         </div>
-        <div v-if="!videoOnly" class="room-container">
-          <neko-members />
-          <div class="room-menu">
-            <div class="settings">
-              <neko-menu />
-            </div>
-            <div class="controls">
-              <neko-controls :shakeKbd="shakeKbd" />
-            </div>
-            <div class="emotes">
-              <neko-emotes />
-            </div>
+        <!-- <neko-members /> -->
+        <!--
+        <div class="room-menu">
+          <div class="settings">
+            <neko-menu />
+          </div>
+          <div class="controls">
+            <neko-controls :shakeKbd="shakeKbd" />
+          </div>
+          <div class="emotes">
+            <neko-emotes />
           </div>
         </div>
+        -->
       </main>
       <neko-side v-if="!videoOnly && side" />
       <neko-connect v-if="!connected" />
@@ -85,12 +85,12 @@
         max-width: 100%;
         flex-shrink: 0;
         flex-direction: column;
-        display: flex;
+        display: none;
 
         .room-menu {
           max-width: 100%;
           flex: 1;
-          display: flex;
+          display: none;
 
           .settings {
             margin-left: 10px;
@@ -119,43 +119,23 @@
     }
   }
 
-  @media only screen and (max-width: 1024px) {
-    html,
-    body {
-      overflow-y: auto !important;
-      width: auto !important;
-      height: auto !important;
-    }
-
-    body > p {
-      display: none;
-    }
-
-    #neko {
-      position: relative;
-      flex-direction: column;
-      max-height: initial !important;
-
+  @media only screen and (max-width: 600px) {
+    #neko.expanded {
       .neko-main {
-        height: 100vh;
+        transform: translateX(calc(-100% + 65px));
+
+        video {
+          display: none;
+        }
       }
 
       .neko-menu {
-        height: 100vh;
-        width: 100% !important;
-      }
-    }
-  }
-
-  @media only screen and (max-width: 1024px) and (orientation: portrait) {
-    #neko {
-      &.expanded .neko-main {
-        height: 40vh;
-      }
-
-      &.expanded .neko-menu {
-        height: 60vh;
-        width: 100% !important;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 65px;
+        width: calc(100% - 65px);
       }
     }
   }
@@ -234,20 +214,6 @@
       if (enabled) {
         this.$accessor.video.setMuted(false)
         this.$accessor.settings.setSound(false)
-      }
-    }
-
-    @Watch('side')
-    onSide(side: boolean) {
-      if (side) {
-        console.log('side enabled')
-        // scroll to the side
-        this.$nextTick(() => {
-          const side = document.querySelector('aside')
-          if (side) {
-            side.scrollIntoView({ behavior: 'smooth', block: 'start' })
-          }
-        })
       }
     }
 

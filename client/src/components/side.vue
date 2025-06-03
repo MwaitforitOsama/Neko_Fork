@@ -1,6 +1,6 @@
 <template>
   <aside class="neko-menu">
-    <div class="tabs-container">
+    <!-- <div class="tabs-container">
       <ul>
         <li :class="{ active: tab === 'chat' }" @click.stop.prevent="change('chat')">
           <i class="fas fa-comment-alt" />
@@ -20,7 +20,7 @@
       <neko-chat v-if="tab === 'chat'" />
       <neko-files v-if="tab === 'files'" />
       <neko-settings v-if="tab === 'settings'" />
-    </div>
+    </div> -->
   </aside>
 </template>
 

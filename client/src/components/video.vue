@@ -11,7 +11,6 @@
         <textarea
           ref="overlay"
           class="overlay"
-          spellcheck="false"
           tabindex="0"
           data-gramm="false"
           :style="{ pointerEvents: hosting ? 'auto' : 'none' }"
@@ -35,46 +34,31 @@
         </div>
         <div ref="aspect" class="player-aspect" />
       </div>
-      <ul v-if="!fullscreen && !hideControls" class="video-menu top">
+      <!-- Hide the top video menu but keep it functional -->
+      <ul v-if="!fullscreen && !hideControls" class="video-menu top" style="display: none;">
         <li><i @click.stop.prevent="requestFullscreen" class="fas fa-expand"></i></li>
         <li v-if="admin"><i @click.stop.prevent="openResolution" class="fas fa-desktop"></i></li>
         <li v-if="!controlLocked && !implicitHosting" :class="extraControls || 'extra-control'">
           <i
-            :class="[
-              hosted && !hosting ? 'disabled' : '',
-              !hosted && !hosting ? 'faded' : '',
-              'fas',
-              'fa-computer-mouse',
-            ]"
+            :class="[hosted && !hosting ? 'disabled' : '', !hosted && !hosting ? 'faded' : '', 'fas', 'fa-keyboard']"
             @click.stop.prevent="toggleControl"
           />
         </li>
       </ul>
-      <ul v-if="!fullscreen && !hideControls" class="video-menu bottom">
+
+      <!-- Hide the bottom video menu but keep it functional -->
+      <ul v-if="!fullscreen && !hideControls" class="video-menu bottom" style="display: none;">
         <li v-if="hosting && (!clipboard_read_available || !clipboard_write_available)">
           <i @click.stop.prevent="openClipboard" class="fas fa-clipboard"></i>
         </li>
-        <li>
-          <i
-            v-if="pip_available"
-            @click.stop.prevent="requestPictureInPicture"
-            v-tooltip="{ content: 'Picture-in-Picture', placement: 'left', offset: 5, boundariesElement: 'body' }"
-            class="fas fa-external-link-alt"
-          />
-        </li>
-        <li
-          v-if="hosting && is_touch_device"
-          :class="extraControls || 'extra-control'"
-          @click.stop.prevent="openMobileKeyboard"
-        >
-          <i class="fas fa-keyboard" />
-        </li>
       </ul>
-      <neko-resolution ref="resolution" v-if="admin" />
-      <neko-clipboard ref="clipboard" v-if="hosting && (!clipboard_read_available || !clipboard_write_available)" />
+
+      <neko-resolution ref="resolution" v-if="admin" v-show="false" />
+      <neko-clipboard ref="clipboard" v-if="hosting && (!clipboard_read_available || !clipboard_write_available)" v-show="false" />
     </div>
   </div>
 </template>
+
 
 <style lang="scss" scoped>
   .video {
@@ -129,7 +113,7 @@
           }
           @media (max-width: 768px) {
             &.extra-control {
-              display: block;
+              display: inline-block;
             }
           }
 
@@ -263,10 +247,6 @@
       return this.$accessor.connecting
     }
 
-    get controlling() {
-      return this.$accessor.remote.controlling
-    }
-
     get hosting() {
       return this.$accessor.remote.hosting
     }
@@ -367,16 +347,6 @@
 
     get horizontal() {
       return this.$accessor.video.horizontal
-    }
-
-    get is_touch_device() {
-      return (
-        // detect if the device has touch support
-        ('ontouchstart' in window || navigator.maxTouchPoints > 0) &&
-        // the primary input mechanism includes a pointing device of
-        // limited accuracy, such as a finger on a touchscreen.
-        window.matchMedia('(pointer: coarse)').matches
-      )
     }
 
     @Watch('width')
@@ -756,17 +726,12 @@
       first.target.dispatchEvent(simulatedEvent)
     }
 
-    isMouseDown = false
-
     onMouseDown(e: MouseEvent) {
-      this.isMouseDown = true
-
-      if (this.locked) {
-        return
+      if (!this.hosting) {
+        this.$emit('control-attempt', e)
       }
 
-      if (!this.controlling) {
-        this.implicitHostingRequest(e)
+      if (!this.hosting || this.locked) {
         return
       }
 
@@ -775,55 +740,12 @@
     }
 
     onMouseUp(e: MouseEvent) {
-      // only if we are the one who started the mouse down
-      if (!this.isMouseDown) return
-      this.isMouseDown = false
-
-      if (this.locked) {
-        return
-      }
-
-      if (!this.controlling) {
-        this.implicitHostingRequest(e)
+      if (!this.hosting || this.locked) {
         return
       }
 
       this.sendMousePos(e)
       this.$client.sendData('mouseup', { key: e.button + 1 })
-    }
-
-    private reqMouseDown: MouseEvent | null = null
-    private reqMouseUp: MouseEvent | null = null
-
-    @Watch('controlling')
-    onControlChange(controlling: boolean) {
-      if (controlling && this.reqMouseDown) {
-        this.onMouseDown(this.reqMouseDown)
-      }
-
-      if (controlling && this.reqMouseUp) {
-        this.onMouseUp(this.reqMouseUp)
-      }
-
-      this.reqMouseDown = null
-      this.reqMouseUp = null
-    }
-
-    implicitHostingRequest(e: MouseEvent) {
-      if (this.implicitHosting) {
-        if (e.type === 'mousedown') {
-          this.reqMouseDown = e
-          this.reqMouseUp = null
-          this.$accessor.remote.request()
-        } else if (e.type === 'mouseup') {
-          this.reqMouseUp = e
-        }
-        return
-      }
-
-      if (e.type === 'mousedown') {
-        this.$emit('control-attempt', e)
-      }
     }
 
     onMouseMove(e: MouseEvent) {
@@ -873,20 +795,10 @@
     @Watch('hosting')
     @Watch('locked')
     onFocus() {
-      // focus opens the keyboard on mobile
-      if (this.is_touch_device) {
-        return
-      }
-
       // in order to capture key events, overlay must be focused
       if (this.focused && this.hosting && !this.locked) {
         this._overlay.focus()
       }
-    }
-
-    openMobileKeyboard() {
-      // focus opens the keyboard on mobile
-      this._overlay.focus()
     }
   }
 </script>

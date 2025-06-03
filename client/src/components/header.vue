@@ -5,7 +5,7 @@
       <span><b>n</b>.eko</span>
     </a>
     <ul class="menu">
-      <li>
+      <!-- <li>
         <i
           :class="[{ disabled: !admin }, { locked: isLocked('control') }, 'fas', 'fa-mouse']"
           @click="toggleLock('control')"
@@ -17,8 +17,8 @@
             delay: { show: 300, hide: 100 },
           }"
         />
-      </li>
-      <li>
+      </li> -->
+      <!-- <li>
         <i
           :class="[{ disabled: !admin }, { locked: isLocked('login') }, locked ? 'fa-lock' : 'fa-lock-open', 'fas']"
           @click="toggleLock('login')"
@@ -30,8 +30,8 @@
             delay: { show: 300, hide: 100 },
           }"
         />
-      </li>
-      <li v-if="fileTransfer">
+      </li> -->
+      <!-- <li v-if="fileTransfer">
         <i
           :class="[{ disabled: !admin }, { locked: isLocked('file_transfer') }, 'fas', 'fa-file']"
           @click="toggleLock('file_transfer')"
@@ -43,11 +43,11 @@
             delay: { show: 300, hide: 100 },
           }"
         />
-      </li>
-      <li>
+      </li> -->
+      <!-- <li>
         <span v-if="showBadge" class="badge">&bull;</span>
         <i class="fas fa-bars toggle" @click="toggleMenu" />
-      </li>
+      </li> -->
     </ul>
   </div>
 </template>
