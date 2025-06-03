@@ -31,7 +31,7 @@
     flex-shrink: 0;
     max-height: 100%;
     max-width: 100%;
-    display: flex;
+    display: none;
     flex-direction: column;
 
     .tabs-container {
@@ -39,7 +39,7 @@
       height: $menu-height;
       max-height: 100%;
       max-width: 100%;
-      display: flex;
+      display: none;
       flex-shrink: 0;
 
       ul {
